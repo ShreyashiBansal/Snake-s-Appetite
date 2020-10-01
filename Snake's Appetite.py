@@ -30,9 +30,9 @@ pygame.display.set_caption('slither')
 
 clock = pygame.time.Clock()
 
-FPS = 5
+FPS = 4
 
-blockSize = 20
+blockSize = 25
 
 noPixel = 0
 
@@ -124,7 +124,7 @@ def gameLoop():
 
             gameDisplay.fill(white)
 
-            message_to_screen("Game over, press c to play again or Q to quit", red)
+            message_to_screen("Game over, press C to play again or Q to quit", red)
 
             pygame.display.update()
 
