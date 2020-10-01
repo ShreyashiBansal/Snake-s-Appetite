@@ -1,289 +1,118 @@
-import pygame,sys
-
-import time
-
+import pygame
 import random
-
-
 
 pygame.init()
 
+# Colors
+white = (255, 255, 255)
+red = (255, 0, 0)
+black = (0, 0, 0)
 
+# Creating window
+screen_width = 900
+screen_height = 600
+gameWindow = pygame.display.set_mode((screen_width, screen_height))
 
-white = (255,255,255)
-
-black = (100,0,0)
-
-red = (255,0,0)
-
-window_width = 800
-
-window_height = 600
-
-
-
-gameDisplay = pygame.display.set_mode((window_width,window_height))
-
-pygame.display.set_caption('slither')
-
-
-
+# Game Title
+pygame.display.set_caption("SnakesWithHarry")
+pygame.display.update()
 clock = pygame.time.Clock()
+font = pygame.font.SysFont(None, 55)
 
-FPS = 5
-
-blockSize = 20
-
-noPixel = 0
-
-'''
-
-sizeGrd = window_width // blockSize
+def text_screen(text, color, x, y):
+    screen_text = font.render(text, True, color)
+    gameWindow.blit(screen_text, [x,y])
 
 
+def plot_snake(gameWindow, color, snk_list, snake_size):
+    for x,y in snk_list:
+        pygame.draw.rect(gameWindow, color, [x, y, snake_size, snake_size])
 
-row = 0
+# Game Loop
+def gameloop():
+    # Game specific variables
+    exit_game = False
+    game_over = False
+    snake_x = 45
+    snake_y = 55
+    velocity_x = 0
+    velocity_y = 0
+    snk_list = []
+    snk_length = 1
 
-col = 0
-
-for nextline in range(sizeGrd):
-
-'''
-
-def myquit():
-
-    ''' Self explanatory '''
-
-    pygame.quit()
-
-    sys.exit(0)
-
-	
-
-font = pygame.font.SysFont(None, 25, bold=True)
-
-def drawGrid():
-
-	sizeGrd = window_width // blockSize
-
-def snake(blockSize, snakelist):
-
-    #x = 250 - (segment_width + segment_margin) * i
-
-    for size in snakelist:
-
-        pygame.draw.rect(gameDisplay, black,[size[0]+5,size[1],blockSize,blockSize],2)
-
-
-
-def message_to_screen(msg, color):
-
-    screen_text = font.render(msg, True, color)
-
-    gameDisplay.blit(screen_text, [window_width/2, window_height/2])
-
-    
-
-def gameLoop():
-
-    gameExit = False
-
-    gameOver = False
-
-
-
-    lead_x = window_width/2
-
-    lead_y = window_height/2
-
-
-
-    change_pixels_of_x = 0
-
-    change_pixels_of_y = 0
-
-
-
-    snakelist = []
-
-    snakeLength = 1
-
-
-
-    randomAppleX = round(random.randrange(0, window_width-blockSize)/10.0)*10.0
-
-    randomAppleY = round(random.randrange(0, window_height-blockSize)/10.0)*10.0
-
-    
-
-    while not gameExit:
-
-        
-
-        while gameOver == True:
-
-            gameDisplay.fill(white)
-
-            message_to_screen("Game over, press c to play again or Q to quit", red)
-
-            pygame.display.update()
-
-
+    food_x = random.randint(20, screen_width / 2)
+    food_y = random.randint(20, screen_height / 2)
+    score = 0
+    init_velocity = 5
+    snake_size = 30
+    fps = 60
+    while not exit_game:
+        if game_over:
+            gameWindow.fill(white)
+            text_screen("Game Over! Press Enter To Continue", red, 100, 250)
 
             for event in pygame.event.get():
-
                 if event.type == pygame.QUIT:
-
-                    gameOver = False
-
-                    gameExit = True
-
-                    
+                    exit_game = True
 
                 if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:
+                        gameloop()
 
-                    if event.key == pygame.K_q:
+        else:
 
-                        gameExit = True
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    exit_game = True
 
-                        gameOver = False
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RIGHT:
+                        velocity_x = init_velocity
+                        velocity_y = 0
 
-                    if event.key == pygame.K_c:
+                    if event.key == pygame.K_LEFT:
+                        velocity_x = - init_velocity
+                        velocity_y = 0
 
-                        gameLoop()
+                    if event.key == pygame.K_UP:
+                        velocity_y = - init_velocity
+                        velocity_x = 0
 
-            
+                    if event.key == pygame.K_DOWN:
+                        velocity_y = init_velocity
+                        velocity_x = 0
 
-        for event in pygame.event.get():
+            snake_x = snake_x + velocity_x
+            snake_y = snake_y + velocity_y
 
-            if event.type == pygame.QUIT:
+            if abs(snake_x - food_x)<6 and abs(snake_y - food_y)<6:
+                score +=1
+                food_x = random.randint(20, screen_width / 2)
+                food_y = random.randint(20, screen_height / 2)
+                snk_length +=5
 
-                gameExit = True
+            gameWindow.fill(white)
+            text_screen("Score: " + str(score * 10), red, 5, 5)
+            pygame.draw.rect(gameWindow, red, [food_x, food_y, snake_size, snake_size])
 
 
+            head = []
+            head.append(snake_x)
+            head.append(snake_y)
+            snk_list.append(head)
 
-            if event.type == pygame.KEYDOWN:
+            if len(snk_list)>snk_length:
+                del snk_list[0]
 
-                if event.key == pygame.K_ESCAPE:
+            if head in snk_list[:-1]:
+                game_over = True
 
-                    myquit()
-
-                leftArrow = event.key == pygame.K_LEFT
-
-                rightArrow = event.key == pygame.K_RIGHT
-
-                upArrow = event.key == pygame.K_UP
-
-                downArrow = event.key == pygame.K_DOWN
-
-                
-
-                if leftArrow:
-
-                    change_pixels_of_x = -blockSize
-
-                    change_pixels_of_y = noPixel
-
-                elif rightArrow:
-
-                    change_pixels_of_x = blockSize
-
-                    change_pixels_of_y = noPixel
-
-                elif upArrow:
-
-                    change_pixels_of_y = -blockSize
-
-                    change_pixels_of_x = noPixel
-
-                elif downArrow:
-
-                    change_pixels_of_y = blockSize
-
-                    change_pixels_of_x = noPixel
-
-
-
-            if lead_x >= window_width or lead_x < 0 or lead_y >= window_height or lead_y < 0:
-
-                gameOver = True
-
-                   
-
-        lead_x += change_pixels_of_x
-
-        lead_y += change_pixels_of_y
-
-        
-
-        gameDisplay.fill(white)
-
-
-
-        AppleThickness = 20
-
-
-
-        print([int(randomAppleX),int(randomAppleY),AppleThickness,AppleThickness])
-
-        pygame.draw.rect(gameDisplay, red, [randomAppleX,randomAppleY,AppleThickness,AppleThickness])
-
-
-
-        allspriteslist = []
-
-        allspriteslist.append(lead_x)
-
-        allspriteslist.append(lead_y)
-
-        snakelist.append(allspriteslist)
-
-
-
-        if len(snakelist) > snakeLength:
-
-            del snakelist[0]
-
-            
-
-        for eachSegment in snakelist [:-1]:
-
-            if eachSegment == allspriteslist:
-
-                gameOver = True
-
-                
-
-        snake(blockSize, snakelist)
-
-        
-
+            if snake_x<0 or snake_x>screen_width or snake_y<0 or snake_y>screen_height:
+                game_over = True
+            plot_snake(gameWindow, black, snk_list, snake_size)
         pygame.display.update()
-
-        
-
-        if lead_x >= randomAppleX and lead_x <= randomAppleX + AppleThickness:
-
-            if lead_y >= randomAppleY and lead_y <= randomAppleY + AppleThickness:
-
-                randomAppleX = round(random.randrange(0, window_width-blockSize)/10.0)*10.0
-
-                randomAppleY = round(random.randrange(0, window_height-blockSize)/10.0)*10.0
-
-                snakeLength += 1
-
-
-
-             
-
-        clock.tick(FPS)
-
-
+        clock.tick(fps)
 
     pygame.quit()
-
     quit()
-
-gameLoop()
-
-
+gameloop()
